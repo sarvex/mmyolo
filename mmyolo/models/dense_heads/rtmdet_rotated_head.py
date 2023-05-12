@@ -285,7 +285,7 @@ class RTMDetRotatedHead(RTMDetHead):
         self.use_hbbox_loss = use_hbbox_loss
         if self.use_hbbox_loss:
             assert loss_angle is not None, \
-                ('When use hbbox loss, loss_angle needs to be specified')
+                    ('When use hbbox loss, loss_angle needs to be specified')
         self.angle_coder = TASK_UTILS.build(angle_coder)
         self.angle_out_dim = self.angle_coder.encode_size
         if head_module.get('angle_out_dim') is not None:
@@ -303,10 +303,7 @@ class RTMDetRotatedHead(RTMDetHead):
             test_cfg=test_cfg,
             init_cfg=init_cfg)
 
-        if loss_angle is not None:
-            self.loss_angle = MODELS.build(loss_angle)
-        else:
-            self.loss_angle = None
+        self.loss_angle = MODELS.build(loss_angle) if loss_angle is not None else None
 
     def predict_by_feat(self,
                         cls_scores: List[Tensor],
@@ -439,11 +436,7 @@ class RTMDetRotatedHead(RTMDetHead):
              img_meta) in zip(flatten_decoded_bboxes, flatten_cls_scores,
                               flatten_objectness, batch_img_metas):
             scale_factor = img_meta['scale_factor']
-            if 'pad_param' in img_meta:
-                pad_param = img_meta['pad_param']
-            else:
-                pad_param = None
-
+            pad_param = img_meta['pad_param'] if 'pad_param' in img_meta else None
             score_thr = cfg.get('score_thr', -1)
             # yolox_style does not require the following operations
             if objectness is not None and score_thr > 0 and not cfg.get(
@@ -466,7 +459,7 @@ class RTMDetRotatedHead(RTMDetHead):
                 continue
 
             nms_pre = cfg.get('nms_pre', 100000)
-            if cfg.multi_label is False:
+            if not cfg.multi_label:
                 scores, labels = scores.max(1, keepdim=True)
                 scores, _, keep_idxs, results = filter_scores_and_topk(
                     scores,
@@ -632,9 +625,7 @@ class RTMDetRotatedHead(RTMDetHead):
             loss_bbox = bbox_preds.sum() * 0
             loss_angle = angle_preds.sum() * 0
 
-        losses = dict()
-        losses['loss_cls'] = loss_cls
-        losses['loss_bbox'] = loss_bbox
+        losses = {'loss_cls': loss_cls, 'loss_bbox': loss_bbox}
         if self.loss_angle is not None:
             losses['loss_angle'] = loss_angle
 

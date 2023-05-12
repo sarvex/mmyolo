@@ -60,7 +60,7 @@ param_scheduler = [
 
 _base_.custom_hooks[1].switch_epoch = max_epochs - num_epochs_stage2
 
-val_evaluator = dict(ann_file=data_root + 'annotations/test.json')
+val_evaluator = dict(ann_file=f'{data_root}annotations/test.json')
 test_evaluator = val_evaluator
 
 default_hooks = dict(

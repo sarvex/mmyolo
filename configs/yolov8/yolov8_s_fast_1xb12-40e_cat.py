@@ -39,7 +39,7 @@ test_dataloader = val_dataloader
 _base_.optim_wrapper.optimizer.batch_size_per_gpu = train_batch_size_per_gpu
 _base_.custom_hooks[1].switch_epoch = max_epochs - close_mosaic_epochs
 
-val_evaluator = dict(ann_file=data_root + 'annotations/test.json')
+val_evaluator = dict(ann_file=f'{data_root}annotations/test.json')
 test_evaluator = val_evaluator
 
 default_hooks = dict(

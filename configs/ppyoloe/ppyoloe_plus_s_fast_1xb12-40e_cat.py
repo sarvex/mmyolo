@@ -46,7 +46,7 @@ default_hooks = dict(
         warmup_epochs=3,
         total_epochs=int(max_epochs * 1.2)))
 
-val_evaluator = dict(ann_file=data_root + 'annotations/test.json')
+val_evaluator = dict(ann_file=f'{data_root}annotations/test.json')
 test_evaluator = val_evaluator
 
 default_hooks = dict(

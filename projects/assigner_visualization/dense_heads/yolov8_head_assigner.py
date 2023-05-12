@@ -170,11 +170,9 @@ class YOLOv8HeadAssigner(YOLOv8Head):
         if isinstance(batch_data_samples, list):
             raise NotImplementedError(
                 'assigning results_list is not implemented')
-        else:
-            # Fast version
-            cls_scores, bbox_preds = self(batch_data_samples['feats'])
-            assign_inputs = (cls_scores, bbox_preds,
-                             batch_data_samples['bboxes_labels'],
-                             batch_data_samples['img_metas'], inputs_hw)
-        assign_results = self.assign_by_gt_and_feat(*assign_inputs)
-        return assign_results
+        # Fast version
+        cls_scores, bbox_preds = self(batch_data_samples['feats'])
+        assign_inputs = (cls_scores, bbox_preds,
+                         batch_data_samples['bboxes_labels'],
+                         batch_data_samples['img_metas'], inputs_hw)
+        return self.assign_by_gt_and_feat(*assign_inputs)

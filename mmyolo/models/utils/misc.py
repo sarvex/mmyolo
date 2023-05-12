@@ -39,8 +39,7 @@ def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
                 [batch_size, number_gt, box_dim+1]
     """
     if isinstance(batch_gt_instances, Sequence):
-        max_gt_bbox_len = max(
-            [len(gt_instances) for gt_instances in batch_gt_instances])
+        max_gt_bbox_len = max(len(gt_instances) for gt_instances in batch_gt_instances)
         # fill zeros with length box_dim+1 if some shape of
         # single batch not equal max_gt_bbox_len
         batch_instance_list = []
@@ -85,8 +84,7 @@ def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
 
             for i in range(batch_size):
                 match_indexes = gt_images_indexes == i
-                gt_num = match_indexes.sum()
-                if gt_num:
+                if gt_num := match_indexes.sum():
                     batch_instance[i, :gt_num] = batch_gt_instances[
                         match_indexes, 1:]
         else:

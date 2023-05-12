@@ -89,7 +89,7 @@ class RTMDetSepBNHeadModule(BaseModule):
 
         self.rtm_cls = nn.ModuleList()
         self.rtm_reg = nn.ModuleList()
-        for n in range(len(self.featmap_strides)):
+        for _ in range(len(self.featmap_strides)):
             cls_convs = nn.ModuleList()
             reg_convs = nn.ModuleList()
             for i in range(self.stacked_convs):

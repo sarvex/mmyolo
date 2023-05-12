@@ -23,8 +23,9 @@ proxy_names = {
 merge_module_keys = {'mmcv': ['mmengine']}
 # exclude_prefix = {'mmcv': ['<class \'mmengine.model.']}
 exclude_prefix = {}
-markdown_title = '# MM 系列开源库注册表\n'
-markdown_title += '（注意：本文档是通过 .dev_scripts/print_registers.py 脚本自动生成）'
+markdown_title = (
+    '# MM 系列开源库注册表\n' + '（注意：本文档是通过 .dev_scripts/print_registers.py 脚本自动生成）'
+)
 
 
 def capitalize(repo_name):
@@ -56,8 +57,7 @@ def git_pull_branch(repo_name, branch_name='', pulldir='.'):
     exec_str += f'{host_addr}/{repo_name}.git'
     if branch_name:
         exec_str += f' {branch_name}'
-    returncode = os.system(exec_str)
-    if returncode:
+    if returncode := os.system(exec_str):
         raise RuntimeError(
             f'failed to get the remote repo, code: {returncode}')
 
@@ -243,16 +243,12 @@ def registries_to_html(registries, title=''):
         # filter the empty registries
         if not registry_dict:
             continue
-        registry_strings = []
         if isinstance(registry_dict, dict):
             registry_dict = list(registry_dict.keys())
-        elif isinstance(registry_dict, list):
-            pass
-        else:
+        elif not isinstance(registry_dict, list):
             raise TypeError(
                 f'unknown type of registry_dict {type(registry_dict)}')
-        for _k in registry_dict:
-            registry_strings.append(f'<li>{_k}</li>')
+        registry_strings = [f'<li>{_k}</li>' for _k in registry_dict]
         table_data.append((registry_name, registry_strings))
 
     # sort the data list
@@ -355,11 +351,10 @@ def generate_markdown_by_repository(repo_name,
         exclude_registries(module_registries, exclude_key)
     markdown_str = registries_to_html(
         module_registries, title=f'{capitalize(repo_name)} Module Components')
-    # get tools markdown string
-    tools_registries = {}
-    for tools_name in tools_list:
-        tools_registries.update(
-            {tools_name: registries_tree.get(tools_name, {})})
+    tools_registries = {
+        tools_name: registries_tree.get(tools_name, {})
+        for tools_name in tools_list
+    }
     markdown_str += tools_to_html(tools_registries, repo_name=repo_name)
     version_str = get_version_from_module_name(module_name, branch)
     title_str = f'\n\n## {capitalize(repo_name)}{version_str}\n'
@@ -394,8 +389,7 @@ def parse_args():
         action='store_true',
         default=False,
         help='whether to throw error when trying to import modules')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 # TODO: Refine
@@ -420,7 +414,6 @@ def main():
         # multi process init
         pool = Pool(processes=len(repositories))
         multi_proc_input_list = []
-        multi_proc_output_list = []
         # get the git repositories
         for branch, repository in zip(branches, repositories):
             repo_name, module_name = parse_repo_name(repository)
@@ -430,10 +423,10 @@ def main():
             multi_proc_input_list.append(
                 (repo_name, module_name, branch, pulldir, args.throw_error))
         print('starting the multi process to get the registries')
-        for multi_proc_input in multi_proc_input_list:
-            multi_proc_output_list.append(
-                pool.apply_async(generate_markdown_by_repository,
-                                 multi_proc_input))
+        multi_proc_output_list = [
+            pool.apply_async(generate_markdown_by_repository, multi_proc_input)
+            for multi_proc_input in multi_proc_input_list
+        ]
         pool.close()
         pool.join()
         with open(save_path, 'w', encoding='utf-8') as fw:

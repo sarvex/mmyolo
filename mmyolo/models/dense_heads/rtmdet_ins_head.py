@@ -148,7 +148,7 @@ class RTMDetInsSepBNHeadModule(RTMDetSepBNHeadModule):
         self.num_gen_params = sum(weight_nums) + sum(bias_nums)
         pred_pad_size = self.pred_kernel_size // 2
 
-        for n in range(len(self.featmap_strides)):
+        for _ in range(len(self.featmap_strides)):
             cls_convs = nn.ModuleList()
             reg_convs = nn.ModuleList()
             kernel_convs = nn.ModuleList()
@@ -457,11 +457,7 @@ class RTMDetInsSepBNHead(RTMDetHead):
                               batch_img_metas):
             ori_shape = img_meta['ori_shape']
             scale_factor = img_meta['scale_factor']
-            if 'pad_param' in img_meta:
-                pad_param = img_meta['pad_param']
-            else:
-                pad_param = None
-
+            pad_param = img_meta['pad_param'] if 'pad_param' in img_meta else None
             score_thr = cfg.get('score_thr', -1)
             if scores.shape[0] == 0:
                 empty_results = InstanceData()
@@ -475,7 +471,7 @@ class RTMDetInsSepBNHead(RTMDetHead):
                 continue
 
             nms_pre = cfg.get('nms_pre', 100000)
-            if cfg.multi_label is False:
+            if not cfg.multi_label:
                 scores, labels = scores.max(1, keepdim=True)
                 scores, _, keep_idxs, results = filter_scores_and_topk(
                     scores,

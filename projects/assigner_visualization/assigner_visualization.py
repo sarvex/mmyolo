@@ -68,8 +68,7 @@ def parse_args():
         'Note that the quotation marks are necessary and that no white space '
         'is allowed.')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -143,8 +142,9 @@ def main():
     for ind_img in range(display_number):
         data = dataset.prepare_data(ind_img)
         if data is None:
-            print('Unable to visualize {} due to strong data augmentations'.
-                  format(dataset[ind_img]['data_samples'].img_path))
+            print(
+                f"Unable to visualize {dataset[ind_img]['data_samples'].img_path} due to strong data augmentations"
+            )
             continue
         # convert data to batch format
         batch_data = collate_fn([data])

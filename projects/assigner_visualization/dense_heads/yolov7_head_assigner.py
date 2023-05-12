@@ -69,23 +69,26 @@ class YOLOv7HeadAssigner(YOLOv7Head):
             assign_results_feat = []
             # no gt bbox matches anchor
             if mlvl_positive_infos[i].shape[0] == 0:
-                for k in range(self.num_base_priors):
-                    assign_results_feat.append({
-                        'stride':
-                        self.featmap_strides[i],
-                        'grid_x_inds':
-                        torch.zeros([0], dtype=torch.int64).to(device),
-                        'grid_y_inds':
-                        torch.zeros([0], dtype=torch.int64).to(device),
-                        'img_inds':
-                        torch.zeros([0], dtype=torch.int64).to(device),
-                        'class_inds':
-                        torch.zeros([0], dtype=torch.int64).to(device),
-                        'retained_gt_inds':
-                        torch.zeros([0], dtype=torch.int64).to(device),
-                        'prior_ind':
-                        k
-                    })
+                assign_results_feat.extend(
+                    {
+                        'stride': self.featmap_strides[i],
+                        'grid_x_inds': torch.zeros([0], dtype=torch.int64).to(
+                            device
+                        ),
+                        'grid_y_inds': torch.zeros([0], dtype=torch.int64).to(
+                            device
+                        ),
+                        'img_inds': torch.zeros([0], dtype=torch.int64).to(device),
+                        'class_inds': torch.zeros([0], dtype=torch.int64).to(
+                            device
+                        ),
+                        'retained_gt_inds': torch.zeros([0], dtype=torch.int64).to(
+                            device
+                        ),
+                        'prior_ind': k,
+                    }
+                    for k in range(self.num_base_priors)
+                )
                 assign_results.append(assign_results_feat)
                 continue
 
@@ -148,12 +151,10 @@ class YOLOv7HeadAssigner(YOLOv7Head):
         if isinstance(batch_data_samples, list):
             raise NotImplementedError(
                 'assigning results_list is not implemented')
-        else:
-            # Fast version
-            cls_scores, bbox_preds, objectnesses = self(
-                batch_data_samples['feats'])
-            assign_inputs = (cls_scores, bbox_preds, objectnesses,
-                             batch_data_samples['bboxes_labels'],
-                             batch_data_samples['img_metas'], inputs_hw)
-        assign_results = self.assign_by_gt_and_feat(*assign_inputs)
-        return assign_results
+        # Fast version
+        cls_scores, bbox_preds, objectnesses = self(
+            batch_data_samples['feats'])
+        assign_inputs = (cls_scores, bbox_preds, objectnesses,
+                         batch_data_samples['bboxes_labels'],
+                         batch_data_samples['img_metas'], inputs_hw)
+        return self.assign_by_gt_and_feat(*assign_inputs)

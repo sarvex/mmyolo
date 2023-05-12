@@ -37,7 +37,7 @@ val_dataloader = dict(
 
 test_dataloader = val_dataloader
 
-val_evaluator = dict(ann_file=data_root + 'annotations/test.json')
+val_evaluator = dict(ann_file=f'{data_root}annotations/test.json')
 test_evaluator = val_evaluator
 
 _base_.optim_wrapper.optimizer.batch_size_per_gpu = train_batch_size_per_gpu
